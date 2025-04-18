@@ -1,10 +1,14 @@
 import datetime
 import hashlib
+import logging
 import os
 from typing import List
 
 import boto3
 import requests
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
 CSE_ID = os.environ["CSE_ID"]
@@ -34,7 +38,7 @@ def get_search_results(pages: int = 3) -> List[dict]:
             if url and title:
                 hash_id = hashlib.sha256(url.encode()).hexdigest()
                 all_results.append({"id": hash_id, "title": title, "url": url})
-    print(all_results)
+    logger.info(f"Found {len(all_results)} postings")
     return all_results
 
 
@@ -52,6 +56,7 @@ def filter_new_results(results: List[dict]) -> List[dict]:
                     "timestamp": datetime.datetime.utcnow().isoformat(),
                 }
             )
+    logger.info(f"Found {len(new_results)} new postings")
     return new_results
 
 
@@ -59,11 +64,13 @@ def send_email(new_jobs: List[dict]):
     if not new_jobs:
         return
     body = "New job postings:\n\n" + "\n".join([f"{j['title']}\n{j['url']}\n" for j in new_jobs])
-    ses.send_email(
+    response = ses.send_email(
         Source=SENDER_EMAIL,
         Destination={"ToAddresses": [RECIPIENT_EMAIL]},
         Message={"Subject": {"Data": "New Job Postings"}, "Body": {"Text": {"Data": body}}},
     )
+    logger.info(f"Email sent with response: {response}")
+    logger.info(f"Sent email with {len(new_jobs)} new postings")
 
 
 def lambda_handler(event, context):
@@ -71,6 +78,6 @@ def lambda_handler(event, context):
         results = get_search_results(pages=3)
         new_results = filter_new_results(results)
         send_email(new_results)
-        return {"statusCode": 200, "body": f"Sent {len(new_results)} new jobs"}
+        return {"statusCode": 200, "body": f"Sent {len(new_results)} new postings"}
     except Exception as e:
         return {"statusCode": 500, "body": str(e)}

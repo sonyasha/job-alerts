@@ -13,8 +13,8 @@ echo "Creating deployment package..."
 cp lambda_function.py package/
 
 cd package
-zip -r9 ../lambda_function.zip .
+zip -r9 ../../lambda_function.zip .
 cd ..
 
 rm -rf package
-echo "Lambda package built at ../lambda_function.zip"
+echo "Lambda package built successfully."
