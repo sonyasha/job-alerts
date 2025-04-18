@@ -1,0 +1,9 @@
+.env
+lambda_function.zip
+lambda/package/
+terraform.tfvars
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+.DS_Store

@@ -1,0 +1,6 @@
+sender_email    = "youremail@example.com"
+recipient_email = "youremail@example.com"
+search_query    = "(analyst OR \"business analyst\" OR scientist) (remote OR \"united states\") -intern -\"remote uk\" -london tableau"
+google_api_key  = "your_google_api_key"
+cse_id          = "your_cse_id"
+aws_region      = "us-east-1"
