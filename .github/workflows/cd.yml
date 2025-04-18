@@ -10,11 +10,6 @@ on:
 
 jobs:
   deploy:
-    if: github.actor == github.repository_owner && github.ref != 'refs/heads/main' && github.event.inputs.confirm != 'YES'
-    run: |
-      echo "❌ Deployment is only allowed from the main branch."
-      exit 1
-
     runs-on: ubuntu-latest
 
     environment:
@@ -31,6 +26,22 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
+    - name: 🚫 Check deployment conditions
+      run: |
+        if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+          echo "❌ Deployment is only allowed from the main branch."
+          exit 1
+        fi
+
+        if [ "${{ github.actor }}" != "${{ github.repository_owner }}" ]; then
+          echo "❌ Only the repository owner can deploy."
+          exit 1
+        fi
+
+        if [ "${{ github.event.inputs.confirm }}" != "YES" ]; then
+          echo "❌ You must type YES to confirm the deploy."
+          exit 1
+        fi
     - name: Checkout repo
       uses: actions/checkout@v3
 
