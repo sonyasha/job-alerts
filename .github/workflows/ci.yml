@@ -15,6 +15,16 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
+    - name: Build Lambda package
+      run: ./lambda/build.sh
+
+    - name: Check if lambda_function.zip exists
+      run: |
+        if [ ! -f lambda_function.zip ]; then
+          echo "Zip not found!"
+          exit 1
+        fi
+
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v2
       with:
@@ -46,13 +56,3 @@ jobs:
       run: black --check .
     - name: Run isort check
       run: isort --check .
-
-    - name: Build Lambda zip
-      run: ./lambda/build.sh
-
-    - name: Check if lambda_function.zip exists
-      run: |
-        if [ ! -f lambda_function.zip ]; then
-          echo "Zip not found!"
-          exit 1
-        fi
