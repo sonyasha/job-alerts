@@ -31,7 +31,7 @@ jobs:
       TF_VAR_search_query: ${{ secrets.SEARCH_QUERY }}
 
     steps:
-    - name: 🚫 Check deployment conditions
+    - name: Check deployment conditions
       run: |
         if [ "${{ github.ref }}" != "refs/heads/main" ]; then
           echo "❌ Deployment is only allowed from the main branch."
@@ -64,8 +64,4 @@ jobs:
 
     - name: Terraform plan
       run: terraform plan -input=false
-      working-directory: terraform
-
-    - name: Terraform apply
-      run: terraform apply -auto-approve
       working-directory: terraform
