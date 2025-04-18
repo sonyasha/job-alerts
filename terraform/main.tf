@@ -3,7 +3,7 @@ terraform {
     bucket         = "my-tf-job-alerts-state-unique-bucket-2025"
     key            = "job-alerts/terraform/terraform.tfstate"
     region         = "us-west-1"
-    dynamodb_table = "terraform-locks"
+    use_lock_table = true
     encrypt        = true
   }
 }
