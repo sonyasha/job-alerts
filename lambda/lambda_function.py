@@ -22,7 +22,7 @@ ses = boto3.client("ses")
 table = dynamodb.Table(DYNAMODB_TABLE)
 
 
-def get_search_results(pages: int = 3) -> List[dict]:
+def get_search_results(pages: int = 2) -> List[dict]:
     all_results = []
     for i in range(pages):
         start_index = 1 + i * 10
@@ -75,7 +75,7 @@ def send_email(new_jobs: List[dict]):
 
 def lambda_handler(event, context):
     try:
-        results = get_search_results(pages=3)
+        results = get_search_results(pages=2)
         new_results = filter_new_results(results)
         send_email(new_results)
         return {"statusCode": 200, "body": f"Sent {len(new_results)} new postings"}
