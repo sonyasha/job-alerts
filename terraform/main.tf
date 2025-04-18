@@ -1,3 +1,13 @@
+terraform {
+  backend "s3" {
+    bucket         = "my-tf-job-alerts-state-unique-bucket-2025"
+    key            = "job-alerts/terraform/terraform.tfstate"
+    region         = "us-west-1"
+    dynamodb_table = "terraform-locks"
+    encrypt        = true
+  }
+}
+
 provider "aws" {
   region = var.aws_region
 }
