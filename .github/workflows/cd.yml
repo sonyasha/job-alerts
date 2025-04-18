@@ -1,0 +1,56 @@
+name: Deploy Infrastructure
+run-name: Deploy to AWS triggered by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type YES to confirm deploy to production"
+        required: true
+
+jobs:
+  deploy:
+    if: github.actor == github.repository_owner && github.ref != 'refs/heads/main' && github.event.inputs.confirm != 'YES'
+    run: |
+      echo "❌ Deployment is only allowed from the main branch."
+      exit 1
+
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: https://console.aws.amazon.com/lambda/home
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Build Lambda package
+      run: ./lambda/build.sh
+
+    - name: Terraform init
+      run: terraform init -input=false
+      working-directory: terraform
+
+    - name: Terraform plan
+      run: terraform plan
+      working-directory: terraform
+
+    - name: Terraform apply
+      env:
+        TF_VAR_google_api_key: ${{ secrets.GOOGLE_API_KEY }}
+        TF_VAR_cse_id: ${{ secrets.CSE_ID }}
+        TF_VAR_sender_email: ${{ secrets.SENDER_EMAIL }}
+        TF_VAR_recipient_email: ${{ secrets.RECIPIENT_EMAIL }}
+        TF_VAR_search_query: ${{ secrets.SEARCH_QUERY }}
+      run: terraform apply -auto-approve
+      working-directory: terraform

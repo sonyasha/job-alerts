@@ -1,0 +1,53 @@
+name: Validate and Build Lambda
+
+on:
+  push:
+
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-west-1
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Check Terraform formatting
+      run: terraform fmt -check -recursive
+      working-directory: terraform
+
+    - name: Terraform init
+      run: terraform init -input=false
+      working-directory: terraform
+
+    - name: Terraform validate
+      run: terraform validate
+      working-directory: terraform
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install dev dependencies
+      run: pip install -r requirements-lint.txt
+
+    - name: Run ruff check
+      run: ruff check .
+    - name: Run black check
+      run: black --check .
+    - name: Run isort check
+      run: isort --check .
+
+    - name: Build Lambda zip
+      run: ./lambda/build.sh
+
+    - name: Check if lambda_function.zip exists
+      run: |
+        if [ ! -f lambda_function.zip ]; then
+          echo "Zip not found!"
+          exit 1
+        fi
