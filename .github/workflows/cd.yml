@@ -24,6 +24,11 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_google_api_key: ${{ secrets.GOOGLE_API_KEY }}
+      TF_VAR_cse_id: ${{ secrets.CSE_ID }}
+      TF_VAR_sender_email: ${{ secrets.SENDER_EMAIL }}
+      TF_VAR_recipient_email: ${{ secrets.RECIPIENT_EMAIL }}
+      TF_VAR_search_query: ${{ secrets.SEARCH_QUERY }}
 
     steps:
     - name: 🚫 Check deployment conditions
@@ -58,15 +63,9 @@ jobs:
       working-directory: terraform
 
     - name: Terraform plan
-      run: terraform plan
+      run: terraform plan -input=false
       working-directory: terraform
 
     - name: Terraform apply
-      env:
-        TF_VAR_google_api_key: ${{ secrets.GOOGLE_API_KEY }}
-        TF_VAR_cse_id: ${{ secrets.CSE_ID }}
-        TF_VAR_sender_email: ${{ secrets.SENDER_EMAIL }}
-        TF_VAR_recipient_email: ${{ secrets.RECIPIENT_EMAIL }}
-        TF_VAR_search_query: ${{ secrets.SEARCH_QUERY }}
       run: terraform apply -auto-approve
       working-directory: terraform
